@@ -8,10 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,5 +25,9 @@ public class Controller {
     @PostMapping("/api/ai/roast")
     public ResponseEntity<ResponseDTO> roastAI(@RequestBody @Valid RequestDTO requestDTO) {
         return ResponseEntity.ok(service.roastAIService(requestDTO));
+    }
+    @GetMapping("/api/ai/history")
+    public ResponseEntity<List<ResponseDTO>> getALl() {
+        return ResponseEntity.ok(service.getHistory());
     }
 }
