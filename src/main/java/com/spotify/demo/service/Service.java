@@ -1,4 +1,6 @@
 package com.spotify.demo.service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.spotify.demo.ai.AIClient;
 import com.spotify.demo.dto.RequestDTO;
@@ -50,16 +52,16 @@ public class Service {
         return dto;
     }
 
+    public Page<ResponseDTO> getHistory(Pageable pageable) {
+        Page<Roast> ldto = repository.findAll(pageable);
+        Page<ResponseDTO> rdto;
 
-    public List<ResponseDTO> getHistory() {
-        List<Roast> ldto = repository.findAll();
-
-        List<ResponseDTO> rdto = new ArrayList<>();
-
-        for (Roast roast : ldto) {
-            ResponseDTO responseDTO = new ResponseDTO(roast.getArtistName(), roast.getSongName(), roast.getRoastText());
-            rdto.add(responseDTO);
-        }
+        rdto = ldto.map(roast ->
+            new ResponseDTO(
+                    roast.getArtistName(),
+                    roast.getSongName(),
+                    roast.getRoastText()
+            ));
         return rdto;
     }
 }
