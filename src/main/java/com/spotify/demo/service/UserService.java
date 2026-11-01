@@ -3,6 +3,7 @@ package com.spotify.demo.service;
 import com.spotify.demo.dto.LoginResponse;
 import com.spotify.demo.dto.RegisterResponseDTO;
 import com.spotify.demo.entity.User;
+import com.spotify.demo.exceptionHandler.InvalidCredentialException;
 import com.spotify.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
     public RegisterResponseDTO registerUser(String username, String email, String password) {
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -37,18 +39,18 @@ public class UserService {
     public LoginResponse loginUser(String email, String password) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new RuntimeException("Invalid Credentials")
         );
         String hashPassword = user.getPassword();
         boolean isCorrect = passwordEncoder.matches(password, hashPassword);
 
         LoginResponse loginResponse = new LoginResponse();
-        if (isCorrect) {
-            loginResponse.setResponse("Welcome back! ");
+        if (!isCorrect) {
+            throw new InvalidCredentialException();
         }
-        else {
-            loginResponse.setResponse("Wrong Password");
-        }
+        String token = jwtService.generateToken(email);
+        loginResponse.setToken(token);
+        loginResponse.setResponse("Welcome Back! ");
         return loginResponse;
     }
 }
